@@ -1,1 +1,2 @@
-employee_id, full_name, vacations_start_date, vacations_end_date, total_days_taken, approval_status, month, year
+employee_id,full_name,vacations_start_date,vacations_end_date,total_days_taken,approval_status,month,year
+123,daniela,2025-12-20,2026-01-02,12.0,APPROVED,12,2025
