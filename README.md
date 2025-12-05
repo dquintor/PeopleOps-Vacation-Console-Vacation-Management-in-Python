@@ -135,8 +135,6 @@ This is the heart of the PeopleOps logic.
 
 - **Input validation:** CSV parsing may lack robust validation; consider adding stricter checks for required fields (IDs, hire dates, vacation records).
 
-- **Timezone / date handling:** If the code uses naive date arithmetic, consider using `datetime` with timezone-aware objects or `pendulum` for clarity.
-
 - **Unit tests:** Add automated tests for accrual calculation, edge cases around Sundays, and minimum-month enforcement.
 
 - **Rounding rules:** Clarify how fractional days are handled (round up/down/half-day policy) and implement consistent rounding.
