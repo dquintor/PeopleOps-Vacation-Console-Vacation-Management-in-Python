@@ -6,11 +6,163 @@
 
 This repository contains a small console-based Python application for managing employee vacation days. The application reads employee data from CSV files, applies company vacation rules, and helps calculate available vacation days and perform simple vacation-related operations.
 
-## How it works 
-- The program loads one or more CSV files containing employee records and/or vacation requests.
-- It computes accrued vacation days according to the rules described below.
-- It excludes Sundays from counted vacation days and enforces a minimum months-worked rule for accrual.
-- It provides a command-line interface (console) to query and perform operations.
+## General Flow of the Application
+
+The core idea behind the project is simple:
+
+1.  **Collect employee data**\
+    The program loads a CSV file containing employee records: ID, name,
+    department, hire date, etc.
+
+2.  **Read user input from the console**\
+    The user types an employee ID to request a vacation‑days
+    calculation.
+
+3.  **Validate the employee**\
+    The system checks whether that employee exists in the CSV.
+
+    -   If not found → prints an error\
+    -   If found → moves to calculation
+
+4.  **Calculate eligible vacation days**\
+    This logic uses:
+
+    -   Months worked\
+    -   Rule: *1.5 days per month*\
+    -   Rule: *Minimum 6 months*\
+    -   Rule: *Sundays do not count*
+
+5.  **Show the results**\
+    The console prints:
+
+    -   Total months worked\
+    -   Total eligible days\
+    -   Warnings (if under 6 months)
+
+------------------------------------------------------------------------
+
+##  How Each Module Contributes to the Flow
+
+### \### `main.py`
+
+-   Entry point of the entire program.
+-   Loads the CSV file of employees.
+-   Displays the console interface.
+-   Reads the user's chosen employee ID.
+-   Calls functions from other modules to:
+    -   validate employees\
+    -   calculate vacation days\
+    -   display the result
+
+**Flow:**
+
+    start → load CSV → ask user for ID → validate → calculate → print → end
+
+------------------------------------------------------------------------
+
+### `employee_data.py`
+
+Handles **all data operations**, especially the CSV.
+
+Responsibilities: - Load employees from CSV to a Python list/dict. -
+Search for employees by ID. - Validate that the ID exists. - Provide the
+employee's hire date when needed.
+
+This module isolates data handling so that the rest of the program does
+not worry about CSV parsing.
+
+------------------------------------------------------------------------
+
+### `date_utils.py`
+
+Manages all **date calculations**.
+
+It provides: - Functions to compute months worked between hire date and
+today. - Logic that ensures calculations are correct regardless of month
+length. - Tools used by the vacation rules module.
+
+Example internal logic:
+
+    months = (current_year - hire_year) * 12 + (current_month - hire_month)
+
+------------------------------------------------------------------------
+
+### `vacation_rules.py`
+
+Contains the **core business logic** of the application.
+
+Implements all syllabus‑required rules: - 1.5 days per month worked -
+Minimum 6 months to earn vacation - Remove Sundays from final count
+
+Flow inside this module:
+
+    get months worked
+    if months < 6 → return 0
+    days = months * 1.5
+    remove sundays from the projected vacation period
+    return final_days
+
+------------------------------------------------------------------------
+
+## Full Execution Flow (Step-by-Step)
+
+    main.py
+     ├─ loads employees from CSV  → employee_data.load_csv()
+     ├─ asks user for ID
+     ├─ finds the employee       → employee_data.find_employee()
+     ├─ gets hire date
+     │
+     ├─ calculate months worked  → date_utils.calculate_months_worked()
+     │
+     ├─ apply business rules     → vacation_rules.calculate_vacations()
+     │     ├─ check minimum months
+     │     ├─ multiply by 1.5 days
+     │     ├─ remove sundays
+     │     └─ return final count
+     │
+     └─ display result on console
+
+------------------------------------------------------------------------
+
+## How the Logic Fits Together
+
+Everything works in a **pipeline structure**:
+
+1.  **Data layer**\
+    (`employee_data.py`)\
+    → Provides employee info.
+
+2.  **Time layer**\
+    (`date_utils.py`)\
+    → Calculates months worked.
+
+3.  **Rules layer**\
+    (`vacation_rules.py`)\
+    → Turns months into valid vacation days.
+
+4.  **Interface layer**\
+    (`main.py`)\
+    → Talks to the user and prints results.
+
+Each module has one job, and the application works because they pass
+information to the next one in the chain.
+
+------------------------------------------------------------------------
+
+## Why This Design Works Well
+
+-   Clear **separation of responsibilities**
+-   Clean, readable code
+-   Easy to update rules without touching the rest of the system
+-   Can be expanded later with:
+    -   GUI
+    -   more employee attributes
+    -   extra vacation policies
+    -   database storage
+
+------------------------------------------------------------------------
+
+
 
 ## How to run
 
