@@ -1,296 +1,271 @@
 # PeopleOps Vacation Console
 
-**Made by:** Daniela Quinto Rios, clan Turing
+Console-based Python application for managing employee vacation days based on company rules.
+
+**Author:** Daniela Quinto Rios  
+**Clan:** Turing  
+
+---
+
+## Table of Contents
+
+1. [Overview](#overview)  
+2. [Features](#features)  
+3. [Core Concepts and Execution Flow](#core-concepts-and-execution-flow)  
+4. [Architecture and Modules](#architecture-and-modules)  
+    - [main.py](#mainpy)  
+    - [employees.py](#employeespy)  
+    - [login.py](#loginpy)  
+    - [vacations.py](#vacationspy)  
+    - [reports.py](#reportspy)  
+    - [utils.py](#utilspy)  
+5. [Vacation Rules](#vacation-rules)  
+6. [Data Files (CSV Inputs)](#data-files-csv-inputs)  
+    - [employees.csv](#employeescsv)  
+    - [users.csv](#userscsv)  
+    - [vacations.csv](#vacationscsv)  
+7. [How to Run](#how-to-run)  
+8. [Design Rationale](#design-rationale)  
+9. [Limitations and Future Improvements](#limitations-and-future-improvements)  
+
+---
 
 ## Overview
 
-This repository contains a small console-based Python application for managing employee vacation days. The application reads employee data from CSV files, applies company vacation rules, and helps calculate available vacation days and perform simple vacation-related operations.
+PeopleOps Vacation Console is a small console-based Python application for managing employee vacation days.
 
-## General Flow of the Application
+The application:
 
-The core idea behind the project is simple:
+- Reads employee, user, and vacation data from CSV files.
+- Applies a set of vacation rules (accrual rate, minimum time worked, exclusion of Sundays).
+- Calculates available vacation days for employees.
+- Supports simple operations such as vacation registration and report generation.
 
-1.  **Collect employee data**\
-    The program loads a CSV file containing employee records: ID, name,
-    department, hire date, etc.
+The system is organized in layers:
 
-2.  **Read user input from the console**\
-    The user types an employee ID to request a vacation‑days
-    calculation.
+1. Data layer (CSV handling and lookups)  
+2. Time layer (date and time calculations)  
+3. Rules layer (vacation accrual logic)  
+4. Interface layer (console interaction and menus)  
 
-3.  **Validate the employee**\
-    The system checks whether that employee exists in the CSV.
+---
 
-    -   If not found → prints an error\
-    -   If found → moves to calculation
+## Features
 
-4.  **Calculate eligible vacation days**\
-    This logic uses:
+- Load employee records from CSV files.
+- Validate employee identity by ID.
+- Calculate months worked based on hire date.
+- Compute eligible vacation days using company rules:
+  - 1.5 days per month worked.
+  - Minimum of 6 months required to start accruing vacation.
+  - Sundays do not count as vacation days when calculating days taken.
+- Track vacations taken and approval status.
+- Generate CSV-based reports (for example, monthly or yearly vacation summaries).
+- Simple login and role-based access using a `users.csv` file.
 
-    -   Months worked\
-    -   Rule: *1.5 days per month*\
-    -   Rule: *Minimum 6 months*\
-    -   Rule: *Sundays do not count*
+---
 
-5.  **Show the results**\
-    The console prints:
+## Core Concepts and Execution Flow
 
-    -   Total months worked\
-    -   Total eligible days\
-    -   Warnings (if under 6 months)
+At a high level, the application follows this pipeline:
 
-------------------------------------------------------------------------
+1. **Collect employee data**  
+   The program loads a CSV file with employee records (ID, name, department, hire date).
 
-##  How Each Module Contributes to the Flow
+2. **Read user input from the console**  
+   The user logs in and selects actions from the menu.
 
-###  `main.py`
+3. **Validate the employee**  
+   Checks if the employee exists; if not, prints an error.
 
--   Entry point of the entire program.
--   Loads the CSV file of employees.
--   Displays the console interface.
--   Reads the user's chosen employee ID.
--   Calls functions from other modules to:
-    -   validate employees\
-    -   calculate vacation days\
-    -   display the result
+4. **Calculate eligible vacation days**  
+   Uses:
+   - Months worked
+   - Accrual rule: 1.5 days per month
+   - Minimum eligibility: 6 months
+   - Exclusion of Sundays
 
-**Flow:**
+5. **Show results**  
+   Displays:
+   - Months worked  
+   - Eligible days  
+   - Warnings if under 6 months  
 
-    start → load CSV → ask user for ID → validate → calculate → print → end
+### Full Execution Flow
 
-------------------------------------------------------------------------
+```
+main.py
+ ├─ load employees → employees.load_csv()
+ ├─ login flow → login.validate()
+ ├─ display menu
+ ├─ vacation calculation:
+ │     ├─ find employee → employees.find_employee()
+ │     ├─ compute months worked → utils.date helpers
+ │     ├─ apply rules → vacations.calculate()
+ │     └─ show results
+ ├─ report generation → reports.export_csv()
+ └─ end
+```
 
-### `employee_data.py`
+---
 
-Handles **all data operations**, especially the CSV.
+## Architecture and Modules
 
-Responsibilities: - Load employees from CSV to a Python list/dict. -
-Search for employees by ID. - Validate that the ID exists. - Provide the
-employee's hire date when needed.
+### `main.py`
 
-This module isolates data handling so that the rest of the program does
-not worry about CSV parsing.
+Entry point of the application.
 
-------------------------------------------------------------------------
+Responsibilities:
+- Launch console interface
+- Handle login and roles
+- Navigate the main menu
+- Trigger vacation calculations, lookups, and reports
 
-### `date_utils.py`
+---
 
-Manages all **date calculations**.
+### `employees.py`
 
-It provides: - Functions to compute months worked between hire date and
-today. - Logic that ensures calculations are correct regardless of month
-length. - Tools used by the vacation rules module.
+Manages employee records stored in `employees.csv`.
 
-Example internal logic:
+Responsibilities:
+- Load employee data
+- Look up employees by ID
+- Expose fields such as hire date, name, and department
 
-    months = (current_year - hire_year) * 12 + (current_month - hire_month)
+---
 
-------------------------------------------------------------------------
+### `login.py`
 
-### `vacation_rules.py`
+Handles user authentication.
 
-Contains the **core business logic** of the application.
+Responsibilities:
+- Load credentials from `users.csv`
+- Validate username and password
+- Return role for access control
 
-Implements all syllabus‑required rules: - 1.5 days per month worked -
-Minimum 6 months to earn vacation - Remove Sundays from final count
+---
 
-Flow inside this module:
+### `vacations.py`
 
-    get months worked
-    if months < 6 → return 0
-    days = months * 1.5
-    remove sundays from the projected vacation period
-    return final_days
+Core vacation logic module.
 
-------------------------------------------------------------------------
+Responsibilities:
+- Load and store vacation records
+- Apply business rules:
+  - 1.5 days per month
+  - Minimum 6 months
+  - Exclude Sundays from days taken
+- Register new vacation entries
+- Compute balances: accrued, taken, remaining
 
-## Full Execution Flow (Step-by-Step)
+---
 
-    main.py
-     ├─ loads employees from CSV  → employee_data.load_csv()
-     ├─ asks user for ID
-     ├─ finds the employee       → employee_data.find_employee()
-     ├─ gets hire date
-     │
-     ├─ calculate months worked  → date_utils.calculate_months_worked()
-     │
-     ├─ apply business rules     → vacation_rules.calculate_vacations()
-     │     ├─ check minimum months
-     │     ├─ multiply by 1.5 days
-     │     ├─ remove sundays
-     │     └─ return final count
-     │
-     └─ display result on console
+### `reports.py`
 
-------------------------------------------------------------------------
+Generates vacation reports.
 
-## How the Logic Fits Together
+Responsibilities:
+- Combine employee and vacation data
+- Produce monthly or yearly summaries
+- Export CSV-based reports such as `reporte_vacaciones_2025_12.csv`
 
-Everything works in a **pipeline structure**:
+---
 
-1.  **Data layer**\
-    (`employee_data.py`)\
-    → Provides employee info.
+### `utils.py`
 
-2.  **Time layer**\
-    (`date_utils.py`)\
-    → Calculates months worked.
+Utility helpers shared across modules.
 
-3.  **Rules layer**\
-    (`vacation_rules.py`)\
-    → Turns months into valid vacation days.
+Responsibilities:
+- Date operations (e.g., months worked calculation)
+- Formatting utilities
+- CSV helpers
+- Input validation
 
-4.  **Interface layer**\
-    (`main.py`)\
-    → Talks to the user and prints results.
+Example:
 
-Each module has one job, and the application works because they pass
-information to the next one in the chain.
+```python
+months = (current_year - hire_year) * 12 + (current_month - hire_month)
+```
 
-------------------------------------------------------------------------
+---
 
-## Why This Design Works Well
+## Vacation Rules
 
--   Clear **separation of responsibilities**
--   Clean, readable code
--   Easy to update rules without touching the rest of the system
--   Can be expanded later with:
-    -   GUI
-    -   more employee attributes
-    -   extra vacation policies
-    -   database storage
+- **Accrual rate:** 1.5 days per month worked  
+- **Minimum eligibility:** 6 months worked  
+- **Exclusion of Sundays:** Sundays do not count as vacation days taken  
 
-------------------------------------------------------------------------
+These rules define how vacation is accrued, used, and calculated.
 
+---
 
+## Data Files (CSV Inputs)
 
-## How to run
+### `employees.csv`
 
-1. Ensure you have Python installed (see 'Python version' below).
+```csv
+employee_id,full_name,position,department,hire_date
+123,daniela,position,department,2022-12-25
+```
 
-2. From the repository root, run the main script:
+### `users.csv`
+
+```csv
+username,password,role
+daniela,pass123,admin
+john,doe456,user
+mary,smith789,user
+```
+
+### `vacations.csv`
+
+```csv
+employee_id,full_name,vacations_start_date,vacations_end_date,total_days_taken,approval_status,month,year
+123,daniela,2025-12-20,2026-01-02,12.0,APPROVED,12,2025
+```
+
+---
+
+## How to Run
+
+### Requirements
+
+- Python **3.8 or newer**
+- All CSV files placed under:
+
+```
+PeopleOps-Vacation-Console-Vacation-Management-in-Python/
+```
+
+### Run the app
 
 ```bash
 python PeopleOps-Vacation-Console-Vacation-Management-in-Python/main.py
 ```
 
-## Python version
-Compatible with **Python 3.8 or newer**. Use a modern Python 3 interpreter.
+---
 
-## Required CSV files
+## Design Rationale
 
-The repository includes the following CSV files:
+This architecture ensures:
 
-### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/employees.csv`
+- Clean separation of responsibilities
+- Maintainable and extensible structure
+- Ability to switch from CSV to a database with minimal changes
+- Easy future additions:
+  - GUI  
+  - New rules  
+  - More reporting features  
 
-Sample:
+---
 
-```
-employee_id,  full_name,  position,  department,  hire_date
-123, daniela, position, department, 2022-12-25
-```
+## Limitations and Future Improvements
 
+- Improve CSV validation  
+- Add unit tests  
+- Define rounding policies  
+- Enhance console UX (argparse, click)  
+- Introduce database persistence  
 
-### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/users.csv`
+---
 
-Sample:
-
-```
-username, password, role
-daniela, pass123, admin
-john, doe456, user
-mary, smith789, user
-```
-
-### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/vacations.csv`
-
-Sample:
-
-```
-employee_id, full_name, vacations_start_date, vacations_end_date, total_days_taken, approval_status, month, year
-123, daniela, 2025-12-20, 2026-01-02, 12.0, APPROVED, 12, 2025
-```
-
-## Project structure and purpose of each `.py` file
-
-### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/employees.py`
-- Purpose: Manages employee records stored in employees.csv.
-This module reads employee data and provides:
-- employee lookup functions
-- access to fields like hire date, name, ID, and department
-- Other modules (such as vacations and reports) depend on this module to retrieve employee details for calculations.
-
-### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/login.py`
-- Purpose: Handles the authentication layer of the app.
-It loads user credentials from users.csv and validates:
--username
--password
--It provides a simple login function that the main console uses to grant or deny access.
-- Contains part of the application logic or helpers.
-
-### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/main.py`
-- Purpose: 
-- Likely the program entry point (runs the console).
-This is the entry point of the entire console application.
-It launches the PeopleOps Vacation Console, manages the menu flow, and connects user actions with the internal modules.
-It handles:
-- Login sequence using the login module
-- Menu navigation
-- Calling employee lookups
-- Vacation calculations
-- Report generation
-Basically, this file is the “controller” that drives the user experience.
-
-### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/reports.py`
-- Purpose: Creates and exports vacation reports.
-It fetches employee data and vacation data to produce output like:
-- monthly or full-year vacation summaries
-- CSV-based report generation
-- It also writes formatted reports such as reporte_vacaciones_2025_12.csv.
-This file acts as the “output generator” for the system.
-
-### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/utils.py`
-- Purpose: 
-- Utility/helper functions used across modules.
-A helper module with utility functions used across the project.
-Typical utilities include:
-- date operations
-- formatting helpers
-- CSV reading/writing shortcuts
-- input validation helpers
-It’s not business logic by itself, but it supports every other module with shared functionality.
-
-### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/vacations.py`
-- Purpose: 
-- Contains core vacation calculation logic.
-Implements the core vacation calculation logic used by the system.
-This is where the business rules live:
-- 1.5 vacation days earned per month worked
-- Minimum 6 months required to start accruing days
-- Sundays are not counted when calculating used vacation days
-It also handles:
-- loading vacations.csv
-- registering new vacation entries
-- calculating available vs used vacation time
-This is the heart of the PeopleOps logic.
-
-## Rules used to calculate vacations (as implemented / found in code)
-
-- **Accrual rate:** 1.5 days per month worked. 
-
-- **Minimum months worked to start accruing:** 6 months.
-
-- **Sundays do not count as vacation days** when computing days taken.
-
-
-## Limitations and suggested future improvements 
-
-- **Input validation:** CSV parsing may lack robust validation; consider adding stricter checks for required fields (IDs, hire dates, vacation records).
-
-- **Unit tests:** Add automated tests for accrual calculation, edge cases around Sundays, and minimum-month enforcement.
-
-- **Rounding rules:** Clarify how fractional days are handled (round up/down/half-day policy) and implement consistent rounding.
-
-- **CLI UX:** Improve the console interface to include help text, subcommands, and argument parsing (argparse or click).
-
-- **Persistence:** Add saving of results or integration with a simple database if needed.
