@@ -63,33 +63,70 @@ employee_id, full_name, vacations_start_date, vacations_end_date, total_days_tak
 
 ### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/employees.py`
 - Short: employees.py
-- Purpose: 
-- Contains part of the application logic or helpers.
+- Purpose: Manages employee records stored in employees.csv.
+This module reads employee data and provides:
+- employee lookup functions
+- access to fields like hire date, name, ID, and department
+- Other modules (such as vacations and reports) depend on this module to retrieve employee details for calculations.
 
 ### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/login.py`
 - Short: (no short description found)
-- Purpose: 
+- Purpose: Handles the authentication layer of the app.
+It loads user credentials from users.csv and validates:
+-username
+-password
+-It provides a simple login function that the main console uses to grant or deny access.
 - Contains part of the application logic or helpers.
 
 ### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/main.py`
 - Short: (no short description found)
 - Purpose: 
 - Likely the program entry point (runs the console).
+This is the entry point of the entire console application.
+It launches the PeopleOps Vacation Console, manages the menu flow, and connects user actions with the internal modules.
+It handles:
+- Login sequence using the login module
+- Menu navigation
+- Calling employee lookups
+- Vacation calculations
+- Report generation
+Basically, this file is the “controller” that drives the user experience.
 
 ### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/reports.py`
 - Short: (no short description found)
-- Purpose: 
-- Contains part of the application logic or helpers.
+- Purpose: Creates and exports vacation reports.
+It fetches employee data and vacation data to produce output like:
+- monthly or full-year vacation summaries
+- CSV-based report generation
+- It also writes formatted reports such as reporte_vacaciones_2025_12.csv.
+This file acts as the “output generator” for the system.
 
 ### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/utils.py`
 - Short: (no short description found)
 - Purpose: 
 - Utility/helper functions used across modules.
+A helper module with utility functions used across the project.
+Typical utilities include:
+- date operations
+- formatting helpers
+- CSV reading/writing shortcuts
+- input validation helpers
+It’s not business logic by itself, but it supports every other module with shared functionality.
 
 ### `PeopleOps-Vacation-Console-Vacation-Management-in-Python/vacations.py`
 - Short: vacations.py
 - Purpose: 
 - Contains core vacation calculation logic.
+Implements the core vacation calculation logic used by the system.
+This is where the business rules live:
+- 1.5 vacation days earned per month worked
+- Minimum 6 months required to start accruing days
+- Sundays are not counted when calculating used vacation days
+It also handles:
+- loading vacations.csv
+- registering new vacation entries
+- calculating available vs used vacation time
+This is the heart of the PeopleOps logic.
 
 ## Rules used to calculate vacations (as implemented / found in code)
 
