@@ -124,14 +124,11 @@ This is the heart of the PeopleOps logic.
 
 ## Rules used to calculate vacations (as implemented / found in code)
 
-- **Accrual rate:** 1.5 days per month worked. (This rule was requested and searched for in the code; see files: PeopleOps-Vacation-Console-Vacation-Management-in-Python/.git/config, PeopleOps-Vacation-Console-Vacation-Management-in-Python/.git/index, PeopleOps-Vacation-Console-Vacation-Management-in-Python/login.py, PeopleOps-Vacation-Console-Vacation-Management-in-Python/main.py, PeopleOps-Vacation-Console-Vacation-Management-in-Python/reports.py, PeopleOps-Vacation-Console-Vacation-Management-in-Python/vacations.py)
+- **Accrual rate:** 1.5 days per month worked. 
 
 - **Minimum months worked to start accruing:** 6 months.
 
 - **Sundays do not count as vacation days** when computing days taken.
-
-
-Notes on rule evidence: the codebase contains references to 'vacation' and related keywords in the files listed above; the exact arithmetic implementation (e.g., rounding, prorating partial months) is described in the relevant `.py` files and summarized below.
 
 
 ## Limitations and suggested future improvements 
