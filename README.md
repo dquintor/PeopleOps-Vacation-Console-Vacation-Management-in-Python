@@ -43,7 +43,7 @@ The core idea behind the project is simple:
 
 ##  How Each Module Contributes to the Flow
 
-### \### `main.py`
+###  `main.py`
 
 -   Entry point of the entire program.
 -   Loads the CSV file of employees.
