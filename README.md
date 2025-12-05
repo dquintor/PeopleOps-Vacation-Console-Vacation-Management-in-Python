@@ -23,7 +23,7 @@ python PeopleOps-Vacation-Console-Vacation-Management-in-Python/main.py
 ```
 
 ## Python version
-There is no explicit Python version pinned in the files. The code appears compatible with **Python 3.8 or newer**. Use a modern Python 3 interpreter.
+Compatible with **Python 3.8 or newer**. Use a modern Python 3 interpreter.
 
 ## Required CSV files
 
